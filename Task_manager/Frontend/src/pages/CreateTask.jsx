@@ -29,7 +29,7 @@ const CreateTask = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-md">
-      <h1 className="text-2xl font-bold mb-6">Create New Task</h1>
+      <h1 className="text-2xl font-bold mb-6 mt-14">Create New Task</h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-gray-700 mb-2" htmlFor="title">

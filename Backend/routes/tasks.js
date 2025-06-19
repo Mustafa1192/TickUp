@@ -46,6 +46,27 @@ router.put('/:id', auth, async (req, res) => {
   }
 });
 
+router.get('/stats', auth, async (req, res) => {
+  try {
+    // Add validation for req.user
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+
+    const tasks = await Task.find({ user: req.user.id });
+    const stats = {
+      total: tasks.length,
+      completed: tasks.filter(task => task.status === 'completed').length,
+      inProgress: tasks.filter(task => task.status === 'in-progress').length,
+      pending: tasks.filter(task => task.status === 'pending').length
+    };
+    res.json(stats);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
 // Delete a task
 router.delete('/:id', auth, async (req, res) => {
   try {
