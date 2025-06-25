@@ -5,7 +5,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/tasks');
 
-const app = express();
+const app = express(); 
 
 // Middleware
 app.use(cors());
@@ -17,7 +17,7 @@ app.use('/api/tasks', taskRoutes);
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
+  .then(() => console.log('MongoDB connected successfully 🚀'))
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Server
