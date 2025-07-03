@@ -28,7 +28,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Update a task
-router.put('/:id', auth, async (req, res) => {
+router.patch('/:id', auth, async (req, res) => {
   try {
     const task = await Task.findOneAndUpdate(
       { _id: req.params.id, user: req.userId },

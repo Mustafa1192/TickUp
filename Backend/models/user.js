@@ -1,41 +1,13 @@
-// const mongoose = require('mongoose');
-// const bcrypt = require('bcryptjs');
-
-// const userSchema = new mongoose.Schema({
-//   email: {
-//     type: String,
-//     required: true,
-//     unique: true,
-//     trim: true,
-//     lowercase: true
-//   },
-//   password: {
-//     type: String,
-//     required: true,
-//     minlength: 6
-//   }
-// });
-
-// // Hash password before saving
-// userSchema.pre('save', async function(next) {
-//   if (this.isModified('password')) {
-//     this.password = await bcrypt.hash(this.password, 10);
-//   }
-//   next();
-// });
-
-// const User = mongoose.model('User', userSchema);
-
-// module.exports = User;
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'Please add an email'],
     unique: true,
+    lowercase: true,
+    trim: true,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
       'Please add a valid email'
@@ -53,34 +25,33 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Encrypt password using bcrypt
+// Hash password before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    next();
+  if (!this.isModified('password')) return next();
+  
+  // Trim password if it exists
+  if (this.password) {
+    this.password = this.password.trim();
   }
-
+  
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
-// Sign JWT and return
-userSchema.methods.getSignedJwtToken = function() {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE
-  });
-};
-
-// Match user entered password to hashed password in database
+// Method to compare passwords
 userSchema.methods.matchPassword = async function(enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  return await bcrypt.compare(enteredPassword.trim(), this.password);
 };
 
-// Check if model already exists before compiling
-let User;
-try {
-  User = mongoose.model('User');
-} catch (e) {
-  User = mongoose.model('User', userSchema);
-}
+// Generate JWT token
+userSchema.methods.getSignedJwtToken = function() {
+  return jwt.sign(
+    { id: this._id },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+};
 
+const User = mongoose.model('User', userSchema);
 module.exports = User;
