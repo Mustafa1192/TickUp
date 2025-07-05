@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Login from './pages/Login';
 import Tasks from './pages/Tasks';
 import CreateTask from './pages/CreateTask';
@@ -12,8 +12,8 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <main className="container mx-auto px-4 py-6 pb-0 ">
+        <NavbarWrapper />
+        <main className="container mx-auto">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -57,6 +57,18 @@ function App() {
       </div>
     </Router>
   );
+}
+
+// New component to conditionally render Navbar
+function NavbarWrapper() {
+  const location = useLocation();
+  const hideNavbarPaths = ['/login', '/signup'];
+  
+  if (hideNavbarPaths.includes(location.pathname)) {
+    return null;
+  }
+  
+  return <Navbar />;
 }
 
 export default App;

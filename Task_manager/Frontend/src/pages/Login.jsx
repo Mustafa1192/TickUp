@@ -21,7 +21,7 @@ const Login = () => {
         password
       });
       localStorage.setItem('token', response.data.token);
-      navigate('/tasks');
+      navigate('/home');
     } catch (err) {
       setError('Invalid credentials. Please try again.');
       console.error(err);

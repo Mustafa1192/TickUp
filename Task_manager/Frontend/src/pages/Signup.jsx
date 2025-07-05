@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -10,6 +11,8 @@ const Register = () => {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState(null);
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -20,6 +23,25 @@ const Register = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
+  const checkUsernameAvailability = async () => {
+    if (username.trim().length < 3) {
+      setIsUsernameAvailable(null);
+      return;
+    }
+
+    setIsCheckingUsername(true);
+    try {
+      const response = await axios.get(`http://localhost:5000/api/auth/check-username/${username}`);
+      setIsUsernameAvailable(response.data.available);
+      setError(response.data.available ? '' : 'Username is already taken');
+    } catch (err) {
+      console.error('Error checking username:', err);
+      setIsUsernameAvailable(null);
+    } finally {
+      setIsCheckingUsername(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -28,8 +50,19 @@ const Register = () => {
       return;
     }
 
+    if (username.trim().length < 3 || username.trim().length > 20) {
+      setError('Username must be between 3-20 characters');
+      return;
+    }
+
+    if (isUsernameAvailable === false) {
+      setError('Username is not available');
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:5000/api/auth/signup', {
+        username,
         email,
         password
       });
@@ -73,8 +106,8 @@ const Register = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="bg-white p-[1rem] h-90 rounded-xl shadow-xl w-full max-w-md border border-gray-200">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4"> {/* Added pt-20 */}
+    <div className="bg-white p-[1rem] h-90 rounded-xl shadow-xl w-full max-w-md border border-gray-200">
         <div className="text-center mb-8">
           <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -95,6 +128,62 @@ const Register = () => {
         )}
 
         <form onSubmit={handleSubmit}>
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="username">
+              Username
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <input
+                type="text"
+                id="username"
+                className="w-full pl-10 pr-3 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder="cooluser123"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setIsUsernameAvailable(null);
+                }}
+                onBlur={checkUsernameAvailability}
+                minLength="3"
+                maxLength="20"
+                required
+              />
+              {isCheckingUsername && (
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  <div className="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+                </div>
+              )}
+              {!isCheckingUsername && isUsernameAvailable !== null && (
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  {isUsernameAvailable ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                </div>
+              )}
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              {username.length > 0 && (
+                <span className={username.length < 3 || username.length > 20 ? 'text-red-500' : 'text-gray-500'}>
+                  {username.length}/20 characters
+                </span>
+              )}
+              {isUsernameAvailable === true && (
+                <span className="text-green-500 ml-2">Username available!</span>
+              )}
+            </p>
+          </div>
+
           <div className="mb-5">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="email">
               Email Address
@@ -154,6 +243,7 @@ const Register = () => {
                 )}
               </button>
             </div>
+            <p className="mt-1 text-xs text-gray-500">Minimum 6 characters</p>
           </div>
           
           <div className="mb-6">
@@ -197,7 +287,8 @@ const Register = () => {
           
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center font-medium shadow-md hover:shadow-lg"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center font-medium shadow-md hover:shadow-lg disabled:opacity-50"
+            disabled={isUsernameAvailable === false}
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

@@ -28,23 +28,66 @@ const validateAuthInput = (req, res, next) => {
   next();
 };
 
-// Signup Route - Updated
-router.post('/signup', validateAuthInput, async (req, res) => {
+// Registration input validation middleware
+const validateRegisterInput = (req, res, next) => {
+  const { username, email, password } = req.body;
+  
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Username, email and password are required' });
+  }
+  
+  if (username.trim().length < 3 || username.trim().length > 20) {
+    return res.status(400).json({ message: 'Username must be between 3-20 characters' });
+  }
+  
+  if (password.trim().length < 6) {
+    return res.status(400).json({ message: 'Password must be at least 6 characters' });
+  }
+  
+  next();
+};
+
+// Check username availability
+router.get('/check-username/:username', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const username = req.params.username.trim();
+    const user = await User.findOne({ username });
+    res.json({ available: !user });
+  } catch (err) {
+    console.error('Username check error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Signup Route - Updated with username
+router.post('/signup', validateRegisterInput, async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    const cleanUsername = username.trim();
     const cleanEmail = email.toLowerCase().trim();
     const cleanPassword = password.trim();
     
-    // Check if user exists
-    const existingUser = await User.findOne({ email: cleanEmail });
+    // Check if user exists (email or username)
+    const existingUser = await User.findOne({ 
+      $or: [
+        { email: cleanEmail },
+        { username: cleanUsername }
+      ]
+    });
+    
     if (existingUser) {
-      return res.status(409).json({ message: 'User already exists' });
+      if (existingUser.email === cleanEmail) {
+        return res.status(409).json({ message: 'Email already in use' });
+      } else {
+        return res.status(409).json({ message: 'Username already taken' });
+      }
     }
     
     // Create new user (password will be hashed in pre-save hook)
     const user = new User({ 
+      username: cleanUsername,
       email: cleanEmail,
-      password: cleanPassword // Will be hashed automatically
+      password: cleanPassword
     });
     
     await user.save();
@@ -56,6 +99,7 @@ router.post('/signup', validateAuthInput, async (req, res) => {
       success: true,
       token, 
       userId: user._id,
+      username: user.username,
       email: user.email
     });
     
@@ -68,7 +112,7 @@ router.post('/signup', validateAuthInput, async (req, res) => {
   }
 });
 
-// Login Route - Updated
+// Login Route - Updated (remains email-based)
 router.post('/login', validateAuthInput, async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -101,7 +145,9 @@ router.post('/login', validateAuthInput, async (req, res) => {
     res.status(200).json({
       success: true,
       token,
-      userId: user._id
+      userId: user._id,
+      username: user.username,  // Now includes username in response
+      email: user.email
     });
     
   } catch (err) {
