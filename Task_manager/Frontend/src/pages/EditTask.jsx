@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAppContext } from '../Context/AppContext';
 
 const EditTask = () => {
+  const { backendUrl } = useAppContext();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('pending');
@@ -13,7 +15,7 @@ const EditTask = () => {
     const fetchTask = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/tasks/${id}`, {
+        const response = await axios.get(`${backendUrl}/api/tasks/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -32,7 +34,7 @@ const EditTask = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/tasks/${id}`, {
+      await axios.put(`${backendUrl}/api/tasks/${id}`, {
         title,
         description,
         status

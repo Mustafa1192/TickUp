@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useAppContext } from '../Context/AppContext';
 
 const CreateTask = () => {
+  const { backendUrl } = useAppContext();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState('pending');
@@ -12,7 +14,7 @@ const CreateTask = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/tasks', {
+      await axios.post(`${backendUrl}/api/tasks`, {
         title,
         description,
         status

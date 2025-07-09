@@ -7,9 +7,13 @@ import Signup from './pages/Signup';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './components/Home';
 import Navbar from './components/Navbar';
+import Profile from './pages/Profile';
+import { AppProvider } from './Context/AppContext';
+
 
 function App() {
   return (
+    <AppProvider>
     <Router>
       <div className="min-h-screen bg-gray-50">
         <NavbarWrapper />
@@ -20,6 +24,14 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             
             {/* Protected Routes */}
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
             <Route 
               path="/home" 
               element={
@@ -56,6 +68,9 @@ function App() {
         </main>
       </div>
     </Router>
+    </AppProvider>
+
+
   );
 }
 

@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const auth = require('../middleware/Auth'); // Add this line to import the middleware
 const router = express.Router();
 
 // Generate JWT token
@@ -155,6 +156,126 @@ router.post('/login', validateAuthInput, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Server error'
+    });
+  }
+});
+
+// Get authenticated user details
+router.get('/user', auth, async (req, res) => {
+  try {
+    const user = req.user;
+    
+    res.status(200).json({
+      success: true,
+      user: {
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    });
+    
+  } catch (err) {
+    console.error('Get user error:', err);
+    res.status(500).json({
+      success: false,
+      error: 'Server error while fetching user details'
+    });
+  }
+});
+// Update username endpoint
+router.put('/update-username', auth, async (req, res) => {
+  try {
+    const { username } = req.body;
+    const user = req.user; // Now using the user attached by middleware
+
+    if (!username || username.trim().length < 3 || username.trim().length > 20) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Username must be between 3-20 characters' 
+      });
+    }
+
+    const cleanUsername = username.trim();
+
+    // Check if username exists (excluding current user)
+    const existingUser = await User.findOne({ 
+      username: cleanUsername,
+      _id: { $ne: user._id }
+    });
+
+    if (existingUser) {
+      return res.status(409).json({ 
+        success: false,
+        message: 'Username already taken' 
+      });
+    }
+
+    // Update username
+    user.username = cleanUsername;
+    await user.save();
+
+    res.json({ 
+      success: true,
+      user: {
+        username: user.username,
+        email: user.email
+      },
+      message: 'Username updated successfully'
+    });
+
+  } catch (err) {
+    console.error('Error updating username:', err);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error while updating username' 
+    });
+  }
+});
+
+// Change password endpoint
+router.put('/change-password', auth, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = req.user; // Using the user attached by middleware
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Current and new password are required' 
+      });
+    }
+
+    if (newPassword.trim().length < 6) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Password must be at least 6 characters' 
+      });
+    }
+
+    // Verify current password
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ 
+        success: false,
+        message: 'Current password is incorrect' 
+      });
+    }
+
+    // Hash and update new password
+    user.password = newPassword; // Will be hashed by pre-save hook
+    await user.save();
+
+    res.json({ 
+      success: true,
+      message: 'Password updated successfully' 
+    });
+
+  } catch (err) {
+    console.error('Error changing password:', err);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error while changing password' 
     });
   }
 });

@@ -53,7 +53,7 @@ const NavBar = () => {
   const navLinks = [
     { path: '/home', name: 'Dashboard' },
     { path: '/tasks', name: 'My Tasks' },
-    { path: '/projects', name: 'Projects' },
+    // { path: '/projects', name: 'Projects' },
   ];
 
   return (

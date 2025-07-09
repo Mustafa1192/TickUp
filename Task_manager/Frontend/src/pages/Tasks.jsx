@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useAppContext } from '../Context/AppContext';
 
 const Tasks = () => {
+  const { backendUrl } = useAppContext();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -12,7 +14,7 @@ const Tasks = () => {
     const fetchTasks = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/tasks', {
+        const response = await axios.get(`${backendUrl}/api/tasks`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -30,7 +32,7 @@ const Tasks = () => {
   const handleDelete = async (taskId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/tasks/${taskId}`, {
+      await axios.delete(`${backendUrl}/api/tasks/${taskId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -61,7 +63,7 @@ const Tasks = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.patch(
-        `http://localhost:5000/api/tasks/${taskId}`,
+        `${backendUrl}/api/tasks/${taskId}`,
         { status: newStatus },
         {
           headers: {

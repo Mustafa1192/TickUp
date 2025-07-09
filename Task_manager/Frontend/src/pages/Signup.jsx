@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAppContext } from '../Context/AppContext';
+
 
 const Register = () => {
+  const { backendUrl } = useAppContext(); 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,7 +34,7 @@ const Register = () => {
 
     setIsCheckingUsername(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/auth/check-username/${username}`);
+      const response = await axios.get(`${backendUrl}/api/auth/check-username/${username}`);
       setIsUsernameAvailable(response.data.available);
       setError(response.data.available ? '' : 'Username is already taken');
     } catch (err) {
@@ -61,7 +64,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', {
+      const response = await axios.post(`${backendUrl}/api/auth/signup`, {
         username,
         email,
         password
