@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { useAppContext } from '../Context/AppContext';
 import axios from 'axios';
 
 const Home = () => {
+  const { backendUrl } = useAppContext();
   const [taskStats, setTaskStats] = useState({
     total: 0,
     completed: 0,
@@ -15,7 +17,7 @@ const Home = () => {
     const fetchTaskStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/tasks/stats', {
+        const response = await axios.get(`${backendUrl}/api/tasks/stats`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const auth = require('../middleware/Auth'); // Add this line to import the middleware
+const auth = require('../middleware/Auth'); 
 const router = express.Router();
 
 // Generate JWT token
