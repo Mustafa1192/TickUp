@@ -105,7 +105,7 @@ const NavBar = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
               </svg>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            <span className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] bg-clip-text text-transparent">
               TickUp
             </span>
           </Link>
@@ -140,7 +140,7 @@ const NavBar = () => {
                 <div className="ml-4 flex items-center space-x-4">
                   <div className="relative group">
                     <button className="flex items-center space-x-2 focus:outline-none">
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-blue-600 font-medium border border-blue-200">
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#dbeafe] to-[#bfdbfe] flex items-center justify-center text-[#1e40af] font-semibold border border-[#93c5fd] shadow-sm">
                         {user?.username?.charAt(0).toUpperCase() || 'U'}
                       </div>
                       <span className="text-sm font-medium text-gray-700">
@@ -220,7 +220,7 @@ const NavBar = () => {
                 <>
                   {/* Add Profile Section at the top */}
                   <div className="flex items-center px-3 py-4 mb-2 border-b border-gray-200">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center text-blue-600 font-medium border border-blue-200 mr-3">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#dbeafe] to-[#bfdbfe] flex items-center justify-center text-[#1e40af] font-semibold border border-[#93c5fd] mr-3 shadow-sm">
                       {user?.username?.charAt(0).toUpperCase() || 'U'}
                     </div>
                     <div>

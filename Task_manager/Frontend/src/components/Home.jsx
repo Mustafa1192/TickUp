@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAppContext } from '../Context/AppContext';
 import axios from 'axios';
+import { ClipboardList, CheckCircle, Clock, Loader, ShieldCheck } from 'lucide-react';
 
 const Home = () => {
   const { backendUrl } = useAppContext();
@@ -32,113 +33,170 @@ const Home = () => {
     fetchTaskStats();
   }, []);
 
+  const stats = [
+    { label: 'Total Tasks', value: taskStats.total, color: 'blue', icon: ClipboardList },
+    { label: 'Completed', value: taskStats.completed, color: 'green', icon: CheckCircle },
+    { label: 'Pending', value: taskStats.pending, color: 'yellow', icon: Clock },
+    { label: 'In Progress', value: taskStats.inProgress, color: 'purple', icon: Loader }
+  ];
+
+  const features = [
+    {
+      icon: ClipboardList,
+      title: 'Task Management',
+      description: 'Create, edit, and organize your tasks with our intuitive interface.'
+    },
+    {
+      icon: Clock,
+      title: 'Deadline Tracking',
+      description: 'Smart reminders ensure you never miss important deadlines.'
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Secure & Private',
+      description: 'Enterprise-grade security protects your data at all times.'
+    }
+  ];
+
   if (loading) {
-    return <div className="text-center py-8">Loading dashboard...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#f5f8ff]">
+        <div className="animate-pulse text-xl text-[#475569]">Loading your dashboard...</div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4 mt-14">Welcome to TickUp</h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Your smart way to work better and never miss a deadline.
-        </p>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <div className="bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-500">
-          <h3 className="text-gray-500 font-medium">Total Tasks</h3>
-          <p className="text-3xl font-bold mt-2">{taskStats.total}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md border-t-4 border-green-500">
-          <h3 className="text-gray-500 font-medium">Completed</h3>
-          <p className="text-3xl font-bold mt-2">{taskStats.completed}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
-          <h3 className="text-gray-500 font-medium">Pending</h3>
-          <p className="text-3xl font-bold mt-2">{taskStats.pending}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow-md border-t-4 border-purple-500">
-          <h3 className="text-gray-500 font-medium">In Progress</h3>
-          <p className="text-3xl font-bold mt-2">{taskStats.inProgress}</p>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Get Started</h2>
-          <p className="text-gray-600 mb-6">
-            Create your first task or explore your existing tasks to manage your workflow efficiently.
+    <div className="min-h-screen bg-gradient-to-br from-[#f5f8ff] to-[#e3ebfb] px-4 py-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-bold text-[#1e293b] mb-4 mt-14">
+            Welcome to <span className="text-[#3b82f6]">TickUp</span>
+          </h1>
+          <p className="text-xl text-[#475569] max-w-2xl mx-auto">
+            Your smart way to work better and never miss a deadline.
           </p>
-          <div className="flex flex-wrap gap-4">
-            <Link
-              to="/tasks"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition"
-            >
-              Create New Task
-            </Link>
-            <Link
-              to="/tasks"
-              className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-6 py-3 rounded-lg transition"
-            >
-              View All Tasks
-            </Link>
-          </div>
         </div>
-        <div className="bg-white p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Recent Activity</h2>
-          <p className="text-gray-600 mb-6">
-            {taskStats.total === 0 ? (
-              "You don't have any tasks yet. Create your first task to get started!"
-            ) : (
-              <>
-                You have <span className="font-bold">{taskStats.pending}</span> pending tasks and{' '}
-                <span className="font-bold">{taskStats.inProgress}</span> tasks in progress.
-              </>
-            )}
-          </p>
-          {taskStats.completed > 0 && (
-            <p className="text-green-600">
-              Great job! You've completed {taskStats.completed} tasks.
-            </p>
-          )}
-        </div>
-      </div>
 
-      {/* Features */}
-      <div className="bg-gray-50 p-8 rounded-lg">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Features</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-4">
-            <div className="bg-blue-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          {stats.map(({ label, value, color, icon: Icon }, i) => (
+            <div key={i} className="bg-white p-8 rounded-2xl shadow-lg transition-all transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-105 active:shadow-xl">
+              <div className="flex items-center">
+                <div className={`p-3 rounded-lg bg-${color}-100 mr-4`}>
+                  <Icon className={`w-6 h-6 text-${color}-600`} />
+                </div>
+                <div>
+                  <h3 className="text-[#64748b] font-medium">{label}</h3>
+                  <p className={`text-3xl font-bold mt-1 text-${color}-600`}>{value}</p>
+                </div>
+              </div>
             </div>
-            <h3 className="text-xl font-semibold mb-2">Task Management</h3>
-            <p className="text-gray-600">Create, edit, and organize your tasks with ease.</p>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white p-8 rounded-2xl shadow-lg">
+              <h2 className="text-2xl font-bold text-[#1e293b] mb-6">Get Started</h2>
+              <p className="text-[#475569] mb-8">
+                Create your first task or explore your existing tasks to manage your workflow efficiently.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link
+                  to="/tasks/new"
+                  className="bg-[#3b82f6] hover:bg-[#2563eb] text-white px-8 py-4 rounded-xl transition-all shadow-md hover:shadow-lg text-center font-medium"
+                >
+                  Create New Task
+                </Link>
+                <Link
+                  to="/tasks"
+                  className="bg-white border-2 border-[#cbd5e1] hover:border-[#93c5fd] active:border-[#60a5fa] text-[#1e293b] px-8 py-4 rounded-xl transition-all duration-300 shadow-sm hover:shadow-md active:shadow-md hover:scale-105 active:scale-105 text-center font-medium"
+                >
+                  View All Tasks
+                </Link>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-2xl shadow-lg">
+              <h2 className="text-2xl font-bold text-[#1e293b] mb-6">Your Progress</h2>
+              {taskStats.total === 0 ? (
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-6 text-center">
+                  <p className="text-blue-800">
+                    You don't have any tasks yet. Create your first task to get started!
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="bg-[#f1f5f9] rounded-xl p-6">
+                    <p className="text-[#334155] mb-4">
+                      You have <span className="font-bold text-[#1e293b]">{taskStats.pending}</span> pending tasks and{' '}
+                      <span className="font-bold text-[#1e293b]">{taskStats.inProgress}</span> tasks in progress.
+                    </p>
+                    <div className="mb-2 flex justify-between text-sm text-[#64748b]">
+                      <span>Completion Rate</span>
+                      <span>{Math.round((taskStats.completed / taskStats.total) * 100)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-gradient-to-r from-[#6366f1] to-[#3b82f6] h-2.5 rounded-full" 
+                        style={{ width: `${(taskStats.completed / taskStats.total) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  {taskStats.completed > 0 && (
+                    <div className="bg-green-50 border border-green-100 rounded-xl p-6">
+                      <p className="text-green-800 font-medium">
+                        🎉 Great job! You've completed {taskStats.completed} tasks.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-          <div className="text-center p-4">
-            <div className="bg-green-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+
+          <div className="bg-white p-8 rounded-2xl shadow-lg">
+            <h2 className="text-2xl font-bold text-[#1e293b] mb-8">Key Features</h2>
+            <div className="space-y-8">
+              {features.map(({ icon: Icon, title, description }, i) => (
+                <div key={i} className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <Icon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-[#1e293b] mb-2">{title}</h3>
+                    <p className="text-[#475569]">{description}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <h3 className="text-xl font-semibold mb-2">Deadline Tracking</h3>
-            <p className="text-gray-600">Never miss important deadlines with our reminder system.</p>
-          </div>
-          <div className="text-center p-4">
-            <div className="bg-purple-100 w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4">
-              <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Secure & Private</h3>
-            <p className="text-gray-600">Your data is encrypted and protected at all times.</p>
           </div>
         </div>
+
+{localStorage.getItem('token') ? (
+  <div className="bg-white rounded-2xl shadow-lg p-12 py-16 px-4 text-center">
+  <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-800 leading-tight">
+    Manage Tasks,<br />Master Time!
+  </h2>
+<p className="mt-6 text-lg sm:text-xl text-gray-800">
+  <span className="text-red-500 text-xl">🔥</span> Master your minutes, conquer your goals – <strong className="text-gray-900">TickUp by Musk</strong>
+</p>
+</div>
+) : (
+  <div className="bg-gradient-to-r from-[#6366f1] to-[#3b82f6] rounded-2xl p-12 text-center shadow-xl">
+    <h2 className="text-3xl font-bold text-white mb-4">Ready to boost your productivity?</h2>
+    <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
+      Join thousands of professionals who use TickUp to manage their tasks efficiently.
+    </p>
+    <Link
+      to="/tasks/new"
+      className="inline-block bg-white hover:bg-gray-100 text-[#3b82f6] px-10 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl font-medium text-lg"
+    >
+      Get Started Now
+    </Link>
+  </div>
+)}
+
       </div>
     </div>
   );
