@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useAppContext } from '../Context/AppContext';
 
 const NavBar = () => {
-  const { backendUrl } = useAppContext(); 
+  const { backendUrl } = useAppContext();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -14,9 +14,9 @@ const NavBar = () => {
   const location = useLocation();
 
   const getTimeBasedGreeting = () => {
-  const hour = new Date().getHours();
-  return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-};
+    const hour = new Date().getHours();
+    return hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  };
 
   // Fetch user data exactly like Profile component
   const fetchUserProfile = async () => {
@@ -33,7 +33,7 @@ const NavBar = () => {
 
       setUser(response.data.user);
       setIsLoggedIn(true);
-      
+
       // Update localStorage to keep data consistent
       localStorage.setItem('user', JSON.stringify(response.data.user));
     } catch (err) {
@@ -58,7 +58,7 @@ const NavBar = () => {
           console.error('Error parsing user data:', error);
         }
       }
-      
+
       // Then fetch fresh data from API (like Profile does)
       fetchUserProfile();
     } else {
@@ -86,11 +86,12 @@ const NavBar = () => {
   const navLinks = [
     { path: '/home', name: 'Dashboard' },
     { path: '/tasks', name: 'My Tasks' },
-    { path: '/task', name: 'Important' },
+    { path: '/Important', name: 'Important' },
+    { path: '/recycle', name: 'Recycle Bin' },
   ];
 
   return (
-    <motion.nav 
+    <motion.nav
       className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-sm py-2' : 'bg-white/95 backdrop-blur-sm py-3'}`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
@@ -119,15 +120,14 @@ const NavBar = () => {
                     <Link
                       key={link.path}
                       to={link.path}
-                      className={`relative px-1 py-2 text-sm font-medium transition-colors ${
-                        location.pathname === link.path 
-                          ? 'text-blue-600' 
-                          : 'text-gray-600 hover:text-blue-500'
-                      }`}
+                      className={`relative px-1 py-2 text-sm font-medium transition-colors ${location.pathname === link.path
+                        ? 'text-blue-600'
+                        : 'text-gray-600 hover:text-blue-500'
+                        }`}
                     >
                       {link.name}
                       {location.pathname === link.path && (
-                        <motion.div 
+                        <motion.div
                           className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500"
                           layoutId="navIndicator"
                           transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
@@ -144,10 +144,10 @@ const NavBar = () => {
                         {user?.username?.charAt(0).toUpperCase() || 'U'}
                       </div>
                       <span className="text-sm font-medium text-gray-700">
-                          {getTimeBasedGreeting()}, {user?.username?.split(' ')[0] || 'User'}!  
+                        {getTimeBasedGreeting()}, {user?.username?.split(' ')[0] || 'User'}!
                       </span>
                     </button>
-                    
+
                     <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-1 z-50">
                       <Link
                         to="/profile"
@@ -208,7 +208,7 @@ const NavBar = () => {
       {/* Mobile menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
+          <motion.div
             className="md:hidden"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -235,16 +235,15 @@ const NavBar = () => {
                     <Link
                       key={link.path}
                       to={link.path}
-                      className={`block px-3 py-2 rounded-md text-base font-medium ${
-                        location.pathname === link.path
-                          ? 'bg-blue-50 text-blue-600'
-                          : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
-                      }`}
+                      className={`block px-3 py-2 rounded-md text-base font-medium ${location.pathname === link.path
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-700 hover:bg-blue-50 hover:text-blue-600'
+                        }`}
                     >
                       {link.name}
                     </Link>
                   ))}
-                  
+
                   <div className="pt-2 border-t border-gray-200">
                     <Link
                       to="/profile"

@@ -5,6 +5,8 @@ import CreateTask from './pages/CreateTask';
 import EditTask from './pages/EditTask';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
+import ImportantTasks from './pages/ImportantTasks';
+import RecycleBin from './pages/RecycleBin';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './components/Home';
 import Navbar from './components/Navbar';
@@ -70,6 +72,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <TaskDetails />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/Important"
+                element={
+                  <ProtectedRoute>
+                    <ImportantTasks />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/recycle"
+                element={
+                  <ProtectedRoute>
+                    <RecycleBin />
                   </ProtectedRoute>
                 }
               />

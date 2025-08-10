@@ -60,8 +60,31 @@ const Home = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#f5f8ff]">
-        <div className="animate-pulse text-xl text-[#475569]">Loading your dashboard...</div>
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-white bg-opacity-70 z-50 gap-4">
+        <svg
+          className="animate-spin h-14 w-14 text-blue-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-label="Loading"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          />
+        </svg>
+        <p className="text-blue-700 font-semibold text-lg select-none">
+          Syncing your TickUp data…
+        </p>
       </div>
     );
   }
@@ -137,8 +160,8 @@ const Home = () => {
                       <span>{Math.round((taskStats.completed / taskStats.total) * 100)}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div 
-                        className="bg-gradient-to-r from-[#6366f1] to-[#3b82f6] h-2.5 rounded-full" 
+                      <div
+                        className="bg-gradient-to-r from-[#6366f1] to-[#3b82f6] h-2.5 rounded-full"
                         style={{ width: `${(taskStats.completed / taskStats.total) * 100}%` }}
                       ></div>
                     </div>
@@ -173,29 +196,29 @@ const Home = () => {
           </div>
         </div>
 
-{localStorage.getItem('token') ? (
-  <div className="bg-white rounded-2xl shadow-lg p-12 py-16 px-4 text-center">
-  <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-800 leading-tight">
-    Manage Tasks,<br />Master Time!
-  </h2>
-<p className="mt-6 text-lg sm:text-xl text-gray-800">
-  <span className="text-red-500 text-xl">🔥</span> Master your minutes, conquer your goals – <strong className="text-gray-900">TickUp by Musk</strong>
-</p>
-</div>
-) : (
-  <div className="bg-gradient-to-r from-[#6366f1] to-[#3b82f6] rounded-2xl p-12 text-center shadow-xl">
-    <h2 className="text-3xl font-bold text-white mb-4">Ready to boost your productivity?</h2>
-    <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
-      Join thousands of professionals who use TickUp to manage their tasks efficiently.
-    </p>
-    <Link
-      to="/tasks/new"
-      className="inline-block bg-white hover:bg-gray-100 text-[#3b82f6] px-10 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl font-medium text-lg"
-    >
-      Get Started Now
-    </Link>
-  </div>
-)}
+        {localStorage.getItem('token') ? (
+          <div className="bg-white rounded-2xl shadow-lg p-12 py-16 px-4 text-center">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-800 leading-tight">
+              Manage Tasks,<br />Master Time!
+            </h2>
+            <p className="mt-6 text-lg sm:text-xl text-gray-800">
+              <span className="text-red-500 text-xl">🔥</span> Master your minutes, conquer your goals – <strong className="text-gray-900">TickUp by Musk</strong>
+            </p>
+          </div>
+        ) : (
+          <div className="bg-gradient-to-r from-[#6366f1] to-[#3b82f6] rounded-2xl p-12 text-center shadow-xl">
+            <h2 className="text-3xl font-bold text-white mb-4">Ready to boost your productivity?</h2>
+            <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
+              Join thousands of professionals who use TickUp to manage their tasks efficiently.
+            </p>
+            <Link
+              to="/tasks/new"
+              className="inline-block bg-white hover:bg-gray-100 text-[#3b82f6] px-10 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl font-medium text-lg"
+            >
+              Get Started Now
+            </Link>
+          </div>
+        )}
 
       </div>
     </div>

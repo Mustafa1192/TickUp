@@ -2,7 +2,14 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../Context/AppContext';
-import { FaPlus, FaCalendarAlt, FaEdit, FaTrash } from 'react-icons/fa';
+import {
+  FaPlus,
+  FaCalendarAlt,
+  FaEdit,
+  FaTrash,
+  FaStar,
+  FaRegStar,
+} from 'react-icons/fa';
 
 const Tasks = () => {
   const { backendUrl } = useAppContext();
@@ -10,6 +17,10 @@ const Tasks = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // --- Modal state ---
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -35,15 +46,27 @@ const Tasks = () => {
     fetchTasks();
   }, [backendUrl]);
 
+  const openDeleteModal = (task) => {
+    setTaskToDelete(task);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setTaskToDelete(null);
+    setShowDeleteModal(false);
+  };
+
   const handleDelete = async (taskId) => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(`${backendUrl}/api/tasks/${taskId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTasks(tasks.filter((task) => task._id !== taskId));
+      setTasks((prev) => prev.filter((task) => task._id !== taskId));
     } catch (err) {
       console.error('Failed to delete task:', err);
+    } finally {
+      closeDeleteModal();
     }
   };
 
@@ -55,11 +78,41 @@ const Tasks = () => {
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setTasks(tasks.map((task) => (task._id === taskId ? response.data : task)));
+      setTasks((prev) => prev.map((task) => (task._id === taskId ? response.data : task)));
     } catch (err) {
       console.error('Failed to update task status:', err);
     }
   };
+
+  // === NEW: toggleImportant ===
+  const toggleImportant = async (task, e) => {
+    // stop Link navigation
+    if (e && typeof e.stopPropagation === 'function') {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+
+    // optimistic update
+    setTasks((prev) =>
+      prev.map((t) => (t._id === task._id ? { ...t, important: !t.important } : t))
+    );
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.patch(
+        `${backendUrl}/api/tasks/${task._id}`,
+        { important: !task.important },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      // replace with server response to keep things consistent
+      setTasks((prev) => prev.map((t) => (t._id === task._id ? res.data : t)));
+    } catch (err) {
+      console.error('Failed to toggle important status:', err);
+      // rollback optimistic change
+      setTasks((prev) => prev.map((t) => (t._id === task._id ? { ...t, important: task.important } : t)));
+    }
+  };
+  // === END toggleImportant ===
 
   const filteredTasks = tasks.filter((task) => {
     if (filter !== 'all' && task.status !== filter) return false;
@@ -74,8 +127,31 @@ const Tasks = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="fixed inset-0 flex flex-col items-center justify-center bg-white bg-opacity-70 z-50 gap-4">
+        <svg
+          className="animate-spin h-14 w-14 text-blue-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          aria-label="Loading"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+          />
+        </svg>
+        <p className="text-blue-700 font-semibold text-lg select-none">
+          Syncing your TickUp data…
+        </p>
       </div>
     );
   }
@@ -143,9 +219,27 @@ const Tasks = () => {
                 className="block cursor-pointer"
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                {/* Title + Status */}
+                {/* Title + Status + Star */}
                 <div className="flex justify-between items-start mb-3">
-                  <h2 className="text-lg font-bold text-gray-800">{task.title}</h2>
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-lg font-bold text-gray-800">{task.title}</h2>
+                    {/* Star button - stop propagation so Link won't navigate */}
+                    <button
+                      onClick={(e) => toggleImportant(task, e)}
+                      className="p-1 rounded-full hover:bg-gray-100 transition"
+                      title={task.important ? 'Unmark important' : 'Mark important'}
+                      aria-label={task.important ? 'Unmark important' : 'Mark important'}
+                      onMouseDown={(e) => e.stopPropagation()}
+                    >
+                      {task.important ? (
+                        <FaStar size={18} className="text-yellow-400" />
+                      ) : (
+                        <FaRegStar size={18} className="text-gray-400" />
+                      )}
+                    </button>
+
+                  </div>
+
                   <span
                     className={`px-3 py-1 text-xs rounded-full ${task.status === 'completed'
                       ? 'bg-green-100 text-green-800'
@@ -170,7 +264,8 @@ const Tasks = () => {
                       }`}
                   >
                     <FaCalendarAlt className="mr-2 text-blue-500 " />
-                    Due: {(() => {
+                    Due:{' '}
+                    {(() => {
                       const d = new Date(task.deadline);
                       const day = String(d.getDate()).padStart(2, '0');
                       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -208,9 +303,7 @@ const Tasks = () => {
                   className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (window.confirm('Are you sure you want to delete this task?')) {
-                      handleDelete(task._id);
-                    }
+                    openDeleteModal(task);
                   }}
                 >
                   <FaTrash /> Delete
@@ -234,6 +327,33 @@ const Tasks = () => {
             >
               Create New Task
             </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && taskToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50">
+          <div className="bg-white rounded-3xl p-8 w-[90%] max-w-md shadow-xl">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Delete Task</h3>
+            <p className="text-gray-700 mb-6">
+              Are you sure you want to delete <span className="font-semibold">{taskToDelete.title}</span>? The task will be moved to the Recycle Bin and can be restored or permanently deleted later.
+            </p>
+
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={closeDeleteModal}
+                className="px-5 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(taskToDelete._id)}
+                className="px-5 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Yes, Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

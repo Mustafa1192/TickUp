@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';  // Added useLocation
 import { useAppContext } from '../Context/AppContext';
 import { FaCalendarAlt } from 'react-icons/fa';
 
 const TaskDetails = () => {
     const { id } = useParams();
+    const location = useLocation();  // Get location object
     const { backendUrl } = useAppContext();
     const [task, setTask] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -33,7 +34,13 @@ const TaskDetails = () => {
         const fetchTask = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get(`${backendUrl}/api/tasks/${id}`, {
+                // Check if navigated from recycle bin by presence of state flag
+                const isFromRecycleBin = location.state?.fromRecycleBin;
+                const url = isFromRecycleBin
+                    ? `${backendUrl}/api/tasks/recycle/${id}`  // fetch deleted task details
+                    : `${backendUrl}/api/tasks/${id}`;         // fetch normal task details
+
+                const response = await axios.get(url, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setTask(response.data);
@@ -44,7 +51,7 @@ const TaskDetails = () => {
             }
         };
         fetchTask();
-    }, [id, backendUrl]);
+    }, [id, backendUrl, location.state]);
 
     if (loading) return <p className="text-center pt-12 text-gray-500">Loading task details...</p>;
     if (error) return <p className="text-center pt-12 text-red-500">{error}</p>;
@@ -105,7 +112,7 @@ const TaskDetails = () => {
                         <div>
                             <span className="font-semibold">Created At:</span>
                             <br />
-                            {formatDateTime(task.created_at)}
+                            {formatDateTime(task.createdAt)}
                         </div>
                         <div>
                             <span className="font-semibold">Last Updated:</span>
