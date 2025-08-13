@@ -7,6 +7,7 @@ import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import ImportantTasks from './pages/ImportantTasks';
 import RecycleBin from './pages/RecycleBin';
+import ForgetPasswords from './pages/ForgetPasswords';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './components/Home';
 import Navbar from './components/Navbar';
@@ -25,6 +26,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/forget-password" element={<ForgetPasswords />} />
 
               {/* Protected Routes */}
               <Route
@@ -104,7 +106,7 @@ function App() {
 // New component to conditionally render Navbar
 function NavbarWrapper() {
   const location = useLocation();
-  const hideNavbarPaths = ['/login', '/signup'];
+  const hideNavbarPaths = ['/login', '/signup', 'forget-password'];
 
   if (hideNavbarPaths.includes(location.pathname)) {
     return null;

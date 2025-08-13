@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const auth = require('../middleware/Auth'); 
+const { requestPasswordReset, resetPassword } = require('../controllers/authController');
 const router = express.Router();
 
 // Generate JWT token
@@ -279,5 +280,10 @@ router.put('/change-password', auth, async (req, res) => {
     });
   }
 });
+
+router.post('/request-password-reset', requestPasswordReset);
+router.post('/reset-password', resetPassword);
+// router.post('/verify-otp', verifyOTP);
+
 
 module.exports = router;

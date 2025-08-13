@@ -27,17 +27,18 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     select: false
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
+  // ✅ OTP fields
+  otp: {
+    type: String,
+    select: false // don't send OTP in queries
+  },
+otpExpire: { type: Date }
+}, { timestamps: true }); // ✅ Automatically adds createdAt & updatedAt
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
-  // Trim password if it exists
   if (this.password) {
     this.password = this.password.trim();
   }
@@ -47,12 +48,12 @@ userSchema.pre('save', async function(next) {
   next();
 });
 
-// Method to compare passwords
+// Compare passwords
 userSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword.trim(), this.password);
 };
 
-// Generate JWT token
+// JWT token
 userSchema.methods.getSignedJwtToken = function() {
   return jwt.sign(
     { id: this._id },

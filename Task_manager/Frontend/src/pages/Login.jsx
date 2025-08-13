@@ -5,7 +5,7 @@ import { useAppContext } from '../Context/AppContext';
 
 
 const Login = () => {
-  const { backendUrl } = useAppContext(); 
+  const { backendUrl } = useAppContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -43,7 +43,7 @@ const Login = () => {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
           <p className="text-gray-500">Sign in to your account</p>
         </div>
-        
+
         {error && (
           <div className="mb-6 p-3 bg-red-50 text-red-700 rounded-lg flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -75,7 +75,7 @@ const Login = () => {
               />
             </div>
           </div>
-          
+
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="password">
               Password
@@ -112,8 +112,16 @@ const Login = () => {
                 )}
               </button>
             </div>
+
+            {/* Forgot Password Link */}
+            <div className="mt-2 text-right">
+              <Link to="/forget-password" className="text-sm text-blue-600 hover:text-blue-500">
+                Forgot your password?
+              </Link>
+            </div>
           </div>
-          
+
+
           <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center font-medium"

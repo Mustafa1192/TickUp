@@ -1,4 +1,3 @@
-BC Shahi hona 
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
