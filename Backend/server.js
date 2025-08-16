@@ -1,9 +1,10 @@
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const authRoutes = require('./routes/auth');
-const taskRoutes = require('./routes/tasks');
+import 'dotenv/config'; // Automatically loads .env
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import authRoutes from './routes/auth.js';
+import taskRoutes from './routes/tasks.js';
+
 
 const app = express(); 
 

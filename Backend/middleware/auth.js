@@ -1,10 +1,10 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+import jwt from 'jsonwebtoken';
+import User from '../models/user.js';
 
-module.exports = async function(req, res, next) {
+const auth = async (req, res, next) => {
   // Get token from header
   const token = req.header('Authorization')?.replace('Bearer ', '') || 
-               req.header('x-auth-token');
+                req.header('x-auth-token');
 
   if (!token) {
     return res.status(401).json({ 
@@ -54,3 +54,5 @@ module.exports = async function(req, res, next) {
     });
   }
 };
+
+export default auth;

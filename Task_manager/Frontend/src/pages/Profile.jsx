@@ -121,9 +121,27 @@ const Profile = () => {
     }
   };
 
+  // Password validation function
+  const validatePassword = (password) => {
+    // Minimum 8 characters, at least 1 uppercase, 1 lowercase, and 1 special symbol (including _)
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,}$/;
+    return regex.test(password);
+  };
+
+  // Handle password update
   const handlePasswordUpdate = async () => {
+    setError('');
+    setSuccess('');
+
+    // Check if new passwords match
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setError("New passwords don't match");
+      return;
+    }
+
+    // Validate new password
+    if (!validatePassword(passwordData.newPassword)) {
+      setError('Password must be 8+ characters, with uppercase, lowercase & symbol.');
       return;
     }
 
@@ -149,7 +167,6 @@ const Profile = () => {
         confirmPassword: ''
       });
       setSuccess('Password updated successfully!');
-      setError('');
     } catch (err) {
       console.error('Error updating password:', err);
       setError(err.response?.data?.message || 'Failed to update password');

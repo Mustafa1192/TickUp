@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -32,7 +33,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     select: false // don't send OTP in queries
   },
-otpExpire: { type: Date }
+  otpExpire: { type: Date }
 }, { timestamps: true }); // ✅ Automatically adds createdAt & updatedAt
 
 // Hash password before saving
@@ -63,4 +64,5 @@ userSchema.methods.getSignedJwtToken = function() {
 };
 
 const User = mongoose.model('User', userSchema);
-module.exports = User;
+
+export default User;

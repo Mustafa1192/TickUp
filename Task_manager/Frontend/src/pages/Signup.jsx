@@ -5,7 +5,7 @@ import { useAppContext } from '../Context/AppContext';
 
 
 const Register = () => {
-  const { backendUrl } = useAppContext(); 
+  const { backendUrl } = useAppContext();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,41 +45,57 @@ const Register = () => {
     }
   };
 
+  // Password validation function
+  const validatePassword = (password) => {
+    // Minimum 8 characters, at least 1 uppercase, 1 lowercase, and 1 special symbol
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+    return regex.test(password);
+  };
+
+  // Handle registration submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setError('');
+
+    // Password validation
+    if (!validatePassword(password)) {
+      setError('Password must be 8+ characters, with uppercase, lowercase & symbol.');
+      return;
+    }
+
+    // Check if passwords match
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
+    // Validate username length
     if (username.trim().length < 3 || username.trim().length > 20) {
       setError('Username must be between 3-20 characters');
       return;
     }
 
+    // Check username availability
     if (isUsernameAvailable === false) {
       setError('Username is not available');
       return;
     }
 
+    // Submit registration data
     try {
       const response = await axios.post(`${backendUrl}/api/auth/signup`, {
         username,
         email,
         password
       });
-      
+
       setSuccess(true);
       setError('');
+      // Redirect after 2 seconds
       setTimeout(() => navigate('/tasks'), 2000);
-      
+
     } catch (err) {
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError('Registration failed. Please try again.');
-      }
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
 
@@ -94,8 +110,8 @@ const Register = () => {
           </div>
           <h1 className="text-2xl font-bold mb-4 text-green-600">Registration Successful!</h1>
           <p className="mb-6 text-gray-600">You will be redirected shortly.</p>
-          <Link 
-            to="/login" 
+          <Link
+            to="/login"
             className="text-blue-600 hover:text-blue-800 font-medium flex items-center justify-center"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -110,7 +126,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4"> {/* Added pt-20 */}
-    <div className="bg-white p-[1rem] h-90 rounded-xl shadow-xl w-full max-w-md border border-gray-200">
+      <div className="bg-white p-[1rem] h-90 rounded-xl shadow-xl w-full max-w-md border border-gray-200">
         <div className="text-center mb-8">
           <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -120,7 +136,7 @@ const Register = () => {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
           <p className="text-gray-500">Join us to get started</p>
         </div>
-        
+
         {error && (
           <div className="mb-6 p-3 bg-red-50 text-red-700 rounded-lg flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,7 +224,7 @@ const Register = () => {
               />
             </div>
           </div>
-          
+
           <div className="mb-5">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="password">
               Password
@@ -248,7 +264,7 @@ const Register = () => {
             </div>
             <p className="mt-1 text-xs text-gray-500">Minimum 6 characters</p>
           </div>
-          
+
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="confirmPassword">
               Confirm Password
@@ -287,7 +303,7 @@ const Register = () => {
               </button>
             </div>
           </div>
-          
+
           <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center font-medium shadow-md hover:shadow-lg disabled:opacity-50"

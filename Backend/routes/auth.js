@@ -1,9 +1,9 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/user');
-const auth = require('../middleware/Auth'); 
-const { requestPasswordReset, resetPassword } = require('../controllers/authController');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import User from '../models/user.js';
+import auth from '../middleware/Auth.js';
+import { requestPasswordReset, resetPassword } from '../controllers/authController.js';
 const router = express.Router();
 
 // Generate JWT token
@@ -286,4 +286,4 @@ router.post('/reset-password', resetPassword);
 // router.post('/verify-otp', verifyOTP);
 
 
-module.exports = router;
+export default router;

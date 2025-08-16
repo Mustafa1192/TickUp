@@ -106,7 +106,7 @@ function App() {
 // New component to conditionally render Navbar
 function NavbarWrapper() {
   const location = useLocation();
-  const hideNavbarPaths = ['/login', '/signup', 'forget-password'];
+  const hideNavbarPaths = ['/login', '/signup', '/forget-password'];
 
   if (hideNavbarPaths.includes(location.pathname)) {
     return null;
