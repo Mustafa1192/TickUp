@@ -148,7 +148,7 @@ const NavBar = () => {
                       </span>
                     </button>
 
-                    <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-1 z-50">
+                    <div className="select-none absolute right-0 mt-2 w-48 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-1 z-50">
                       <Link
                         to="/profile"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
@@ -244,7 +244,7 @@ const NavBar = () => {
                     </Link>
                   ))}
 
-                  <div className="pt-2 border-t border-gray-200">
+                  <div className="select-none pt-2 border-t border-gray-200">
                     <Link
                       to="/profile"
                       className="flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600"

@@ -362,7 +362,7 @@ const Profile = () => {
                   ) : (
                     <button
                       onClick={() => setEditingProfile(true)}
-                      className="w-full flex items-center justify-between px-4 py-2 text-left bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                      className="w-full  select-none flex items-center justify-between px-4 py-2 text-left bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
                     >
                       <span>Update Profile</span>
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -418,7 +418,7 @@ const Profile = () => {
                   ) : (
                     <button
                       onClick={() => setEditingPassword(true)}
-                      className="w-full flex items-center justify-between px-4 py-2 text-left bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition"
+                      className="w-full flex items-center justify-between px-4 py-2 text-left bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition select-none"
                     >
                       <span>Change Password</span>
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -434,7 +434,7 @@ const Profile = () => {
             <div className="mt-6">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center justify-between px-4 py-2 text-left bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition text-red-600"
+                className="w-full flex items-center justify-between px-4 py-2 text-left bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition text-red-600 select-none"
               >
                 <span>Logout</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
