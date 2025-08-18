@@ -16,20 +16,6 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await axios.post(`${backendUrl}/api/auth/login`, {
-  //       email,
-  //       password
-  //     });
-  //     localStorage.setItem('token', response.data.token);
-  //     navigate('/home');
-  //   } catch (err) {
-  //     setError('Invalid credentials. Please try again.');
-  //     console.error(err);
-  //   }
-  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

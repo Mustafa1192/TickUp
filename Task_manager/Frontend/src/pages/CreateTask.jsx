@@ -16,6 +16,7 @@ const CreateTask = () => {
   const [deadline, setDeadline] = useState(null);
   const [collaborators, setCollaborators] = useState([]);
   const [inviteInput, setInviteInput] = useState('');
+  const [loading, setLoading] = useState(false); // ✅ loading state
 
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
@@ -36,17 +37,21 @@ const CreateTask = () => {
 
   // Invite API
   const handleSendInvites = async (taskId) => {
-    for (let email of collaborators) {
-      await axios.post(
+    const invitePromises = collaborators.map((email) =>
+      axios.post(
         `${backendUrl}/api/tasks/${taskId}/invite`,
         { email },
         { headers: { Authorization: `Bearer ${token}` } }
-      );
-    }
+      )
+    );
+    await Promise.all(invitePromises);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return; // ✅ prevent double click
+    setLoading(true);
+
     try {
       // 1️⃣ Create Task
       const res = await axios.post(
@@ -66,6 +71,8 @@ const CreateTask = () => {
     } catch (err) {
       console.error(err);
       alert('Error creating task');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -165,8 +172,12 @@ const CreateTask = () => {
           </div>
 
           {/* Submit */}
-          <button type="submit" className="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition text-sm shadow-sm">
-            Create Task
+          <button
+            type="submit"
+            disabled={loading} // ✅ disable while creating
+            className={`w-full py-2.5 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition text-sm shadow-sm ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {loading ? 'Creating...' : 'Create Task'}
           </button>
 
         </form>
