@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
 import auth from '../middleware/Auth.js';
+import { attachPendingTasks } from '../utils/taskUtils.js';
 import { requestPasswordReset, resetPassword } from '../controllers/authController.js';
 const router = express.Router();
 
@@ -94,6 +95,9 @@ router.post('/signup', validateRegisterInput, async (req, res) => {
     
     await user.save();
     
+    // ✅ Attach pending tasks if there are any
+    await attachPendingTasks(user);
+
     // Generate token
     const token = generateToken(user._id);
     

@@ -103,7 +103,7 @@ const Home = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {stats.map(({ label, value, color, icon: Icon }, i) => (
-            <div key={i} className="bg-white p-8 rounded-2xl shadow-lg transition-all transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-105 active:shadow-xl">
+            <div key={i} className="bg-white p-8 rounded-2xl shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-105 active:shadow-xl">
               <div className="flex items-center">
                 <div className={`p-3 rounded-lg bg-${color}-100 mr-4`}>
                   <Icon className={`w-6 h-6 text-${color}-600`} />

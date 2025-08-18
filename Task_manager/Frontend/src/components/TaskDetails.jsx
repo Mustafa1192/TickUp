@@ -99,8 +99,8 @@ const TaskDetails = () => {
                         <h2 className="font-semibold mb-1">Collaborators</h2>
                         {task.collaborators && task.collaborators.length > 0 ? (
                             <ul className="list-disc list-inside text-gray-700">
-                                {task.collaborators.map((email, idx) => (
-                                    <li key={idx}>{email}</li>
+                                {task.collaborators.map((user, idx) => (
+                                    <li key={idx}>{user.username ? `${user.username} (${user.email})` : user.email}</li>
                                 ))}
                             </ul>
                         ) : (
@@ -120,7 +120,21 @@ const TaskDetails = () => {
                             {formatDateTime(task.updatedAt)}
                         </div>
                     </section>
+                    <section>
+                        <h2 className="font-semibold mb-1">Activity</h2>
+                        {task.activityLog && task.activityLog.length > 0 ? (
+                            <ul className="list-disc list-inside text-gray-700 text-xs">
+                                {task.activityLog.map((log, idx) => (
+                                    <li key={idx}>
+                                        {log.user?.username || log.user?.email} {log.message} ({formatDateTime(log.at)})
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-gray-400 text-xs">No activity recorded</p>
+                        )}
 
+                    </section>
                     <div className="mt-8 text-center">
                         <Link
                             to="/tasks"

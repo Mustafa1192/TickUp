@@ -10,9 +10,9 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-export default async function sendEmail(to, otp) {
+export default async function sendInviteEmail(to, taskTitle, description, dueDate, inviter, signupLink) {
   const htmlContent = `
-    <!DOCTYPE html>
+  <!DOCTYPE html>
   <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -26,7 +26,7 @@ export default async function sendEmail(to, otp) {
         color: #1e293b;
       }
       .container {
-        max-width: 600px;
+        max-width: 650px;
         margin: 30px auto;
         background: #ffffff;
         border-radius: 20px;
@@ -47,39 +47,46 @@ export default async function sendEmail(to, otp) {
         letter-spacing: 1px;
       }
       .body {
-        padding: 40px 35px;
-        text-align: center;
+        padding: 35px 30px;
       }
       .body h2 {
         font-size: 24px;
-        margin-bottom: 15px;
         font-weight: 600;
+        margin-bottom: 10px;
+        text-align: center;
       }
-      .otp-box {
-        display: inline-block;
-        padding: 25px 40px;
-        margin: 25px 0;
-        border-radius: 16px;
-        font-size: 38px;
-        font-weight: 700;
-        color: #333333;
+      .task-details {
         background: #E6EDFF;
-        background-size: 600% 600%;
-        animation: gradientAnimation 8s ease infinite;
-        box-shadow: 0 8px 20px rgba(59,130,246,0.4);
-        letter-spacing: 5px;
+        padding: 20px;
+        border-radius: 15px;
+        margin: 20px 0;
+        box-shadow: 0 5px 15px rgba(59,130,246,0.15);
       }
-      @keyframes gradientAnimation {
-        0%{background-position:0% 50%}
-        50%{background-position:100% 50%}
-        100%{background-position:0% 50%}
+      .task-details p {
+        margin: 5px 0;
+        font-size: 16px;
+        color: #1e293b;
       }
-      .body p {
+      .join-button {
+        display: block;
+        width: max-content;
+        margin: 25px auto;
+        padding: 12px 30px;
+        background: #3b82f6;
+        color: #ffffff !important; /* Make text white */
+        text-decoration: none !important;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+}
+
+      .body p.description {
         font-size: 16px;
         color: #475569;
         line-height: 1.6;
-        margin-bottom: 15px;
-      } .spam-warning {
+        text-align: center;
+      }
+      .spam-warning {
         margin-top: 25px;
         font-size: 14px;
         color: #b91c1c;
@@ -87,21 +94,6 @@ export default async function sendEmail(to, otp) {
         padding: 12px 15px;
         border-radius: 12px;
         line-height: 1.5;
-      }
-      .support {
-        margin-top: 25px;
-        font-size: 14px;
-        color: #64748b;
-      }
-      .body .countdown {
-        font-weight: bold;
-        color: #ef4444;
-        margin-top: 10px;
-      }
-      .support {
-        margin-top: 30px;
-        font-size: 14px;
-        color: #64748b;
       }
       .footer {
         background: #f0f4ff;
@@ -115,17 +107,21 @@ export default async function sendEmail(to, otp) {
   <body>
     <div class="container">
       <div class="header">
-        <h1>TickUp Password Reset</h1>
+        <h1>TickUp Task Invitation</h1>
       </div>
       <div class="body">
-        <h2>Your One-Time Password (OTP)</h2>
-        <p>Use the following OTP to reset your TickUp password. It will expire in <span class="countdown">59 seconds</span>.</p>
-        <div class="otp-box">${otp}</div>
-<div class="spam-warning">
-  ⚠ <strong>Security Notice:</strong> Do not share your OTP with anyone. TickUp will never ask for it. If you did not request a password reset, please ignore this email and contact support immediately.
-</div>
-        <p>If you did not request a password reset, please ignore this email or contact support.</p>
-        <p class="support">Need help? Contact us at: <strong>tickup.musk@gmail.com</strong></p>
+        <h2>You've been invited to a task!</h2>
+        <div class="task-details">
+          <p><strong>Task Title:</strong> ${taskTitle}</p>
+          <p><strong>Description:</strong> ${description}</p>
+          <p><strong>Due Date:</strong> ${dueDate}</p>
+          <p><strong>Invited By:</strong> ${inviter}</p>
+        </div>
+        <p class="description">Click the button below to join this task and collaborate with your team efficiently.</p>
+        <a href="${signupLink}" class="join-button">Join Task</a>
+        <div class="spam-warning">
+          ⚠ Security Notice: This email is intended for the recipient only. Do not share your login credentials or links. If you did not expect this email, please ignore it or contact support immediately.
+        </div>
       </div>
       <div class="footer">
         &copy; 2025 TickUp. All rights reserved.
@@ -139,11 +135,12 @@ export default async function sendEmail(to, otp) {
     await transporter.sendMail({
       from: `"TickUp" <${process.env.SMTP_USER}>`,
       to,
-      subject: "Your TickUp Password Reset OTP",
+      subject: `Invitation to join task "${taskTitle}"`,
       html: htmlContent
     });
+    console.log(`Invite email sent to ${to}`);
   } catch (err) {
-    console.error(`Email sending failed to ${to}:`, err);
+    console.error(`Error sending invite email to ${to}:`, err);
     throw err;
   }
 }

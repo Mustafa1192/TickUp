@@ -22,6 +22,8 @@ const Tasks = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
 
+  const userId = localStorage.getItem('userId'); // current logged-in user
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -70,29 +72,59 @@ const Tasks = () => {
     }
   };
 
+  // --- Status change (owner + collaborator) ---
+  // --- Status change (owner + collaborator) ---
   const handleStatusChange = async (taskId, newStatus) => {
     try {
       const token = localStorage.getItem('token');
+      const task = tasks.find(t => t._id === taskId);
+
+      if (!task) {
+        console.error('Task not found in local state');
+        return;
+      }
+
+      const isOwner = task.user.toString() === userId;
+
+      // Use separate endpoint for collaborators
+      const endpoint = isOwner
+        ? `${backendUrl}/api/tasks/${taskId}`           // Owner: full update
+        : `${backendUrl}/api/tasks/${taskId}/status`;  // Collaborator: status only
+
       const response = await axios.patch(
-        `${backendUrl}/api/tasks/${taskId}`,
+        endpoint,
         { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
       );
-      setTasks((prev) => prev.map((task) => (task._id === taskId ? response.data : task)));
+
+      // Update local state safely
+      setTasks(prev =>
+        prev.map(t => (t._id === taskId ? response.data : t))
+      );
+
     } catch (err) {
-      console.error('Failed to update task status:', err);
+      console.error('Update failed:', {
+        error: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
     }
   };
 
-  // === NEW: toggleImportant ===
+  // --- Toggle important (owners only) ---
   const toggleImportant = async (task, e) => {
-    // stop Link navigation
     if (e && typeof e.stopPropagation === 'function') {
       e.stopPropagation();
       e.preventDefault();
     }
 
-    // optimistic update
+    if (task.user.toString() !== userId) return; // only owner
+
     setTasks((prev) =>
       prev.map((t) => (t._id === task._id ? { ...t, important: !t.important } : t))
     );
@@ -104,15 +136,16 @@ const Tasks = () => {
         { important: !task.important },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      // replace with server response to keep things consistent
-      setTasks((prev) => prev.map((t) => (t._id === task._id ? res.data : t)));
+      setTasks((prev) =>
+        prev.map((t) => (t._id === task._id ? res.data : t))
+      );
     } catch (err) {
       console.error('Failed to toggle important status:', err);
-      // rollback optimistic change
-      setTasks((prev) => prev.map((t) => (t._id === task._id ? { ...t, important: task.important } : t)));
+      setTasks((prev) =>
+        prev.map((t) => (t._id === task._id ? { ...t, important: task.important } : t))
+      );
     }
   };
-  // === END toggleImportant ===
 
   const filteredTasks = tasks.filter((task) => {
     if (filter !== 'all' && task.status !== filter) return false;
@@ -209,108 +242,119 @@ const Tasks = () => {
       {/* Task Cards */}
       {filteredTasks.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredTasks.map((task) => (
-            <div
-              key={task._id}
-              className="bg-white/80 backdrop-blur-lg rounded-2xl p-5 shadow-md hover:shadow-lg transition"
-            >
-              <Link
-                to={`/tasks/${task._id}`}
-                className="block cursor-pointer"
-                style={{ textDecoration: 'none', color: 'inherit' }}
-              >
-                {/* Title + Status + Star */}
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-bold text-gray-800">{task.title}</h2>
-                    {/* Star button - stop propagation so Link won't navigate */}
-                    <button
-                      onClick={(e) => toggleImportant(task, e)}
-                      className="p-1 rounded-full hover:bg-gray-100 transition"
-                      title={task.important ? 'Unmark important' : 'Mark important'}
-                      aria-label={task.important ? 'Unmark important' : 'Mark important'}
-                      onMouseDown={(e) => e.stopPropagation()}
-                    >
-                      {task.important ? (
-                        <FaStar size={18} className="text-yellow-400" />
-                      ) : (
-                        <FaRegStar size={18} className="text-gray-400" />
-                      )}
-                    </button>
+          {filteredTasks.map((task) => {
+            const isOwner = task.user.toString() === userId;
+            const isCollaborator = task.collaborators?.some((c) =>
+              c._id ? c._id.toString() === userId : c.toString() === userId
+            );
 
+            return (
+              <div
+                key={task._id}
+                className="bg-white/80 backdrop-blur-lg rounded-2xl p-5 shadow-md hover:shadow-lg transition"
+              >
+                <Link
+                  to={`/tasks/${task._id}`}
+                  className="block cursor-pointer"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  {/* Title + Status + Star */}
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-lg font-bold text-gray-800">{task.title}</h2>
+                      {isOwner && (
+                        <button
+                          onClick={(e) => toggleImportant(task, e)}
+                          className="p-1 rounded-full hover:bg-gray-100 transition"
+                          title={task.important ? 'Unmark important' : 'Mark important'}
+                          aria-label={task.important ? 'Unmark important' : 'Mark important'}
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          {task.important ? (
+                            <FaStar size={18} className="text-yellow-400" />
+                          ) : (
+                            <FaRegStar size={18} className="text-gray-400" />
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    <span
+                      className={`px-3 py-1 text-xs rounded-full ${task.status === 'completed'
+                        ? 'bg-green-100 text-green-800'
+                        : task.status === 'in-progress'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                    >
+                      {task.status.replace('-', ' ')}
+                    </span>
                   </div>
 
-                  <span
-                    className={`px-3 py-1 text-xs rounded-full ${task.status === 'completed'
-                      ? 'bg-green-100 text-green-800'
-                      : task.status === 'in-progress'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                  >
-                    {task.status.replace('-', ' ')}
-                  </span>
-                </div>
+                  {/* Description */}
+                  <p className="text-gray-600 text-sm mb-3 line-clamp-3">{task.description}</p>
 
-                {/* Description */}
-                <p className="text-gray-600 text-sm mb-3 line-clamp-3">{task.description}</p>
+                  {/* Deadline */}
+                  {task.deadline && (
+                    <div
+                      className={`flex items-center text-sm mb-3 ${new Date(task.deadline) < new Date() && task.status !== 'completed'
+                        ? 'text-red-500'
+                        : 'text-gray-500'
+                        }`}
+                    >
+                      <FaCalendarAlt className="mr-2 text-blue-500 " />
+                      Due:{' '}
+                      {(() => {
+                        const d = new Date(task.deadline);
+                        const day = String(d.getDate()).padStart(2, '0');
+                        const month = String(d.getMonth() + 1).padStart(2, '0');
+                        const year = String(d.getFullYear()).slice(-2);
+                        return `${day}/${month}/${year}`;
+                      })()}
+                      {new Date(task.deadline) < new Date() && task.status !== 'completed' && (
+                        <span className="ml-1">(Overdue)</span>
+                      )}
+                    </div>
+                  )}
+                </Link>
 
-                {/* Deadline */}
-                {task.deadline && (
-                  <div
-                    className={`flex items-center text-sm mb-3 ${new Date(task.deadline) < new Date() && task.status !== 'completed'
-                      ? 'text-red-500'
-                      : 'text-gray-500'
-                      }`}
+                {/* Status Change (owner + collaborator) */}
+                {(isOwner || isCollaborator) && (
+                  <select
+                    className="w-full mb-4 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={task.status}
+                    onChange={(e) => handleStatusChange(task._id, e.target.value)}
                   >
-                    <FaCalendarAlt className="mr-2 text-blue-500 " />
-                    Due:{' '}
-                    {(() => {
-                      const d = new Date(task.deadline);
-                      const day = String(d.getDate()).padStart(2, '0');
-                      const month = String(d.getMonth() + 1).padStart(2, '0');
-                      const year = String(d.getFullYear()).slice(-2);
-                      return `${day}/${month}/${year}`;
-                    })()}
-                    {new Date(task.deadline) < new Date() && task.status !== 'completed' && (
-                      <span className="ml-1">(Overdue)</span>
-                    )}
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                )}
+
+                {/* Actions (owner only) */}
+                {isOwner && (
+                  <div className="flex justify-between items-center border-t pt-3">
+                    <Link
+                      to={`/tasks/edit/${task._id}`}
+                      className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <FaEdit /> Edit
+                    </Link>
+                    <button
+                      className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openDeleteModal(task);
+                      }}
+                    >
+                      <FaTrash /> Delete
+                    </button>
                   </div>
                 )}
-              </Link>
-
-              {/* Status Change */}
-              <select
-                className="w-full mb-4 px-3 py-2 rounded-full border border-gray-300 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                value={task.status}
-                onChange={(e) => handleStatusChange(task._id, e.target.value)}
-              >
-                <option value="pending">Pending</option>
-                <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
-
-              {/* Actions */}
-              <div className="flex justify-between items-center border-t pt-3">
-                <Link
-                  to={`/tasks/edit/${task._id}`}
-                  className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <FaEdit /> Edit
-                </Link>
-                <button
-                  className="text-red-600 hover:text-red-800 flex items-center gap-1 text-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openDeleteModal(task);
-                  }}
-                >
-                  <FaTrash /> Delete
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-sm p-8 text-center">

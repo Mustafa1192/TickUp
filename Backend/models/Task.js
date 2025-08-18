@@ -26,10 +26,30 @@ const taskSchema = new mongoose.Schema({
 
   collaborators: [
     {
-      type: String, // storing email addresses
-      trim: true,
-    },
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: []
+    }
   ],
+  pendingInvites: {
+    type: [
+      {
+        email: { type: String },
+        token: { type: String }
+      }
+    ],
+    default: []
+  },
+  activityLog: {
+  type: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      message: String,
+      at: { type: Date, default: Date.now }
+    }
+  ],
+  default: []
+},
 
   user: {
     type: mongoose.Schema.Types.ObjectId,

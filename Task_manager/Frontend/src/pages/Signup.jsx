@@ -242,7 +242,7 @@ const Register = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                minLength="6"
+                minLength="8"
                 required
               />
               <button
@@ -262,7 +262,7 @@ const Register = () => {
                 )}
               </button>
             </div>
-            <p className="mt-1 text-xs text-gray-500">Minimum 6 characters</p>
+            <p className="mt-1 text-xs text-gray-500">Minimum 8 characters</p>
           </div>
 
           <div className="mb-6">
