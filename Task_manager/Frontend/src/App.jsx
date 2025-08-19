@@ -137,11 +137,19 @@ function SplashScreen({ onFinish }) {
 }
 
 function App() {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    // Check if splash has already been shown in this session
+    const hasSeen = sessionStorage.getItem('hasSeenSplash');
+    return !hasSeen; // true = show splash if not seen
+  });
 
-  // Show SplashScreen first
+  const handleFinishSplash = () => {
+    sessionStorage.setItem('hasSeenSplash', 'true'); // mark as seen for this session
+    setShowSplash(false);
+  };
+
   if (showSplash) {
-    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+    return <SplashScreen onFinish={handleFinishSplash} />;
   }
 
   return (
